@@ -1,5 +1,11 @@
-// OSMOGAS Potato Testing program
-// Blinks LED's and shows numbers on display
+/*     o-o   o-o  o   o  o-o   o-o    O   o-o     */
+/*    o   o |     |\ /| o   o o      / \ |        */ 
+/*    |   |  o-o  | O | |   | |  -o o---o o-o     */
+/*    o   o     | |   | o   o o   | |   |    |    */
+/*     o-o  o--o  o   o  o-o   o-o  o   oo--o     */
+
+/*    OSMOGAS Potato v1.0                         */
+/*    Jonas Gruska (CC) 2012                      */
 
 const int LedA = 5;
 const int LedB = 8;
@@ -10,7 +16,9 @@ const int GreenLED = 2;
 const int YellowLED = 3;
 const int RedLED = 4;
 
-int count = 0;
+int a0[120];
+
+int count, time_count, total, average;
 
 // Waiting time between showing values in milliseconds
 int waitTime = 2000;
@@ -29,15 +37,52 @@ void setup()
 
 void loop()
 {
-  // Read first sensor
-  Display(map(analogRead(0), 0, 1000, 0, 9));
-  // Turn on LED
+  /**************************************************/
+  /* Averaged ouptut of sensor A0 for last 10 hours */
+  /**************************************************/  
+
+  // First value displayed will be average light for last 10 hours
+  
+  // Every 25th cycle we write the values down for averaging
+  // One cycle take 12 seconds, therefore, 25th cycle means 5 minutes
+  
+  if (count % 25 == 0) {
+    // Write down the last value (scaled to 0-9) 
+    a0[time_count] = map(analogRead(0), 0, 1000, 0, 9);
+ 
+    // When at the end of the array of values - start writing from beginning.
+    // Position in array doesn't affect the average output, obviously
+    if (time_count < 120) 
+      time_count++;
+      else
+      time_count = 0;
+   }
+  
+  // Raise count every (waitTime * 6) milliseconds (in this case, 12 000 ms => 12s)
+  count++;
+  // Reseting values for calculating average
+  total = 0;
+  average = 0;
+  
+  // Counting average (populating all the values from a0 array 
+  // and dividing by amount of written values
+  for (int i = 0; i < time_count; i++) {     
+    total += a0[i];
+    average = int(total / time_count);
+  }
+  
   digitalWrite(GreenLED, HIGH);
+  Display(average);
   // Wait two seconds
   delay(waitTime);
   // Turn off LED
-  digitalWrite(GreenLED, LOW);  
+  digitalWrite(GreenLED, LOW); 
   
+  /***************************************************/
+  /* Basic reading of the sensors, one after another */
+  /***************************************************/
+  
+  /*
   // Read second sensor
   Display(map(analogRead(1), 0, 1000, 0, 9));
   // Turn on LED
@@ -89,6 +134,9 @@ void loop()
   digitalWrite(RedLED, LOW);
   digitalWrite(GreenLED, LOW);
   
+  */
+  
+
 }
 
 // This function outputs the supplied value to the display.
