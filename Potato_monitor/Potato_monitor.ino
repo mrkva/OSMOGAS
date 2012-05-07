@@ -38,25 +38,13 @@ void setup()
 
   delay(1000);
   // Start sequence
-  // Disp_Break();
+  Disp_Break();
 }
 
 void loop()
 {
-  /**************************************************/
-  /* Averaged ouptut of sensor A0 for last 10 hours */
-  /**************************************************/
-
-  // First value displayed will be average light for last 10 hours
-
-  // Every 25th cycle we write the values down for averaging
-  // One cycle take 12 seconds, therefore, 25th cycle means 5 minutes
-
-
-
-
-
-  // Temperature calculation
+ 
+  // Temperature calculation for TOC310 thermistor
 
   int sensorValue = analogRead(A0);
   sensorVoltage = map(sensorValue, 0, 1024, 0, 5000);
@@ -68,9 +56,17 @@ void loop()
   // Wait two seconds
   delay(waitTime);
   // Turn off LED
-  digitalWrite(GreenLED, LOW); 
+  digitalWrite(GreenLED, LOW);
+ 
+  /**************************************************/
+  /* Averaged ouptut of sensor A0 for last 10 hours */
+  /**************************************************/ 
+  
+  // First value displayed will be average light for last 10 hours
+  // Every 25th cycle we write the values down for averaging
+  // One cycle take 12 seconds, therefore, 25th cycle means 5 minutes
 
-  if (count % 1 == 0) {
+  if (count % 25 == 0) {
     // Write down the last value (scaled to 0-9) 
     a0[time_count] = int(temperature);
 
@@ -106,11 +102,10 @@ void loop()
   /* Basic reading of the sensors, one after another */
   /***************************************************/
 
-  
-  // Read second sensor (HUMIDITY)
-   Display(map(analogRead(1), 0, 800, 0, 9));
    // Turn on LED
    digitalWrite(RedLED, HIGH);
+  // Read second sensor (HUMIDITY)
+   Display(map(analogRead(1), 0, 800, 0, 9));
    // Wait two seconds
    delay(waitTime);
    // Turn off LED
@@ -168,7 +163,7 @@ void Display(int n)
 {
   int x = int(n / 10);
   int y = int(n % 10);
-  if (n < 9) {
+  if (n <= 9) {
     digitalWrite(LedD, ((n >> 3) & 1) ? HIGH : LOW);
     digitalWrite(LedC, ((n >> 2) & 1) ? HIGH : LOW);
     digitalWrite(LedB, ((n >> 1) & 1) ? HIGH : LOW);
@@ -192,14 +187,14 @@ void Display(int n)
 
 void Disp_Break()
 {
-  for (int i = 0; i<3; i++ ) {
+  for (int i = 0; i<5; i++ ) {
     Display(0);
     digitalWrite(i+2, HIGH);
     delay(50);
     digitalWrite(i+2, LOW);
-    delay(100);
+    delay(50);
     Blank(); 
-    delay(100);
+    delay(50);
 
   }
 }
