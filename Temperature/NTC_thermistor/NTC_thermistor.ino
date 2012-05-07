@@ -7,7 +7,7 @@ mrkva (cc) 2012
 
 #include <math.h>
 // Resistor value 
-long int resistor = 14700;
+long int resistor = 27000;
 
 float thermoResistance;
 float sensorVoltage;
