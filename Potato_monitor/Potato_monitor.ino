@@ -23,9 +23,11 @@ const int RedLED = 4;
 long int resistor = 27000;
 
 int a0[120];
+int a1[120];
+int a2[120];
 
-int count, time_count, total, average;
-float sensorVoltage, thermoResistance, temperature;
+int count, time_count, total, average, total1, average1, total2, average2;
+float sensorVoltage, thermoResistance, temperature, temperature1;
 
 // Waiting time between showing values in milliseconds
 int waitTime = 2000;
@@ -44,12 +46,17 @@ void setup()
 void loop()
 {
  
-  // Temperature calculation for TOC310 thermistor
+  // Temperature calculation for TDC310 thermistor
 
   int sensorValue = analogRead(A0);
   sensorVoltage = map(sensorValue, 0, 1024, 0, 5000);
   thermoResistance = ((5 * resistor) - ((sensorVoltage/1000.0) * resistor)) / (sensorVoltage/1000.0);
   temperature = (4100 / log(thermoResistance / 0.0106613843)) - 273.15;
+  
+  sensorValue = analogRead(A1);
+  sensorVoltage = map(sensorValue, 0, 1024, 0, 5000);
+  thermoResistance = ((5 * resistor) - ((sensorVoltage/1000.0) * resistor)) / (sensorVoltage/1000.0);
+  temperature1 = (3700 / log(thermoResistance / 0.00407817567)) - 273.15;
 
   digitalWrite(GreenLED, HIGH);
   Display(temperature);
@@ -69,6 +76,7 @@ void loop()
   if (count % 25 == 0) {
     // Write down the last value (scaled to 0-9) 
     a0[time_count] = int(temperature);
+    a1[time_count] = int(temperature1);
 
     // When at the end of the array of values - start writing from beginning.
     // Position in array doesn't affect the average output, obviously
@@ -91,12 +99,60 @@ void loop()
     average = int(total / time_count);
   }
 
+  digitalWrite(GreenLED, HIGH);
+  delay(80);
+  digitalWrite(GreenLED, LOW);
+  delay(80);
+  digitalWrite(GreenLED, HIGH);
+  Display(average);
+  // Wait two seconds
+  delay(waitTime);
+  // Turn off LED
+  digitalWrite(GreenLED, LOW); 
+  delay(80);
+  digitalWrite(GreenLED, HIGH);
+  delay(80);
+  digitalWrite(GreenLED, LOW);
+ 
+  
+ 
+
+  digitalWrite(YellowLED, HIGH);
+  Display(temperature1);
+  // Wait two seconds
+  delay(waitTime);
+  // Turn off LED
+  digitalWrite(YellowLED, LOW);
+ 
+  /**************************************************/
+  /* Averaged ouptut of sensor A1 for last 10 hours */
+  /**************************************************/ 
+
+  // Reseting values for calculating average
+  total = 0;
+  average = 0;
+
+  // Counting average (populating all the values from a0 array 
+  // and dividing by amount of written values
+  for (int i = 0; i < time_count; i++) {     
+    total += a1[i];
+    average = int(total / time_count);
+  }
+
+  digitalWrite(YellowLED, HIGH);
+  delay(80);
+  digitalWrite(YellowLED, LOW);
+  delay(80);
   digitalWrite(YellowLED, HIGH);
   Display(average);
   // Wait two seconds
   delay(waitTime);
   // Turn off LED
-  digitalWrite(YellowLED, LOW); 
+  digitalWrite(YellowLED, LOW);
+  delay(80); 
+  digitalWrite(YellowLED, HIGH);
+  delay(80);
+  digitalWrite(YellowLED, LOW);
 
   /***************************************************/
   /* Basic reading of the sensors, one after another */
@@ -105,7 +161,7 @@ void loop()
    // Turn on LED
    digitalWrite(RedLED, HIGH);
   // Read second sensor (HUMIDITY)
-   Display(map(analogRead(1), 0, 800, 0, 9));
+   Display(map(analogRead(2), 0, 800, 0, 9));
    // Wait two seconds
    delay(waitTime);
    // Turn off LED
