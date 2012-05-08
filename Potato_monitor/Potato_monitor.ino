@@ -89,14 +89,17 @@ void loop()
   // Raise count every (waitTime * 6) milliseconds (in this case, 12 000 ms => 12s)
   count++;
   // Reseting values for calculating average
-  total = 0;
-  average = 0;
+  total, total1 = 0;
+  average, average1 = 0;
 
   // Counting average (populating all the values from a0 array 
   // and dividing by amount of written values
   for (int i = 0; i < time_count; i++) {     
     total += a0[i];
+    total1 += a1[i];
+    
     average = int(total / time_count);
+    average1 = int(total1 / time_count);
   }
 
   digitalWrite(GreenLED, HIGH);
