@@ -21,6 +21,6 @@ void loop() {
   int sensorValue = analogRead(A0);
   sensorVoltage = map(sensorValue, 0, 1024, 0, 5000);
   thermoResistance = ((5 * resistor) - ((sensorVoltage/1000.0) * resistor)) / (sensorVoltage/1000.0);
-  temperature = (4100 / log(thermoResistance / 0.0106613843)) - 273.15;
+  temperature = (3700 / log(thermoResistance / 0.00407817567)) - 273.15;
   Serial.println(temperature);
 }
