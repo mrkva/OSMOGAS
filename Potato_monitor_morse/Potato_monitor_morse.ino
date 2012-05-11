@@ -24,6 +24,8 @@ const int RedLED = 4;
 
 long int resistor = 22000;
 
+int gamel[] = {792, 873, 966, 1191, 1302, 1056, 1164, 1288, 1588, 1736, 1320, 1455, 1610, 1985, 2170};
+
 int a0[120];
 int a1[120];
 int a2[120];
@@ -44,12 +46,12 @@ void setup()
 
   delay(1000);
   // Start sequence
-  melody(1);
+  // melody(1);
 }
 
 void loop()
 {
-  LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF); 
+   
   // Temperature calculation for TDC310 thermistor
 
   int sensorValue = analogRead(A0);
@@ -63,10 +65,15 @@ void loop()
   temperature1 = (3700 / log(thermoResistance / 0.00407817567)) - 273.15;
 */
   digitalWrite(GreenLED, HIGH);
+  delay(80);
+  digitalWrite(GreenLED, LOW);
+  Display(temperature);
   morse(temperature);
   // Wait two seconds
   delay(waitTime);
   // Turn off LED
+  digitalWrite(GreenLED, HIGH);
+  delay(80);
   digitalWrite(GreenLED, LOW);
 
   /**************************************************/
@@ -113,6 +120,9 @@ void loop()
   digitalWrite(GreenLED, LOW);
   delay(80);
   digitalWrite(GreenLED, HIGH);
+  delay(80);
+  digitalWrite(GreenLED, LOW);
+  Display(average);
   morse(average);
   // Wait two seconds
   delay(waitTime);
@@ -121,47 +131,21 @@ void loop()
   delay(80);
   digitalWrite(GreenLED, HIGH);
   delay(80);
+  digitalWrite(GreenLED, HIGH);
+  delay(80);
   digitalWrite(GreenLED, LOW);
-/*
+  
   digitalWrite(YellowLED, HIGH);
-  morse(temperature1);
+  Display(map(analogRead(0), 0, 700, 0, 9));
+  morse(map(analogRead(0), 0, 700, 0, 9));
   // Wait two seconds
   delay(waitTime);
   // Turn off LED
-  digitalWrite(YellowLED, LOW);
-
-  /**************************************************/
-  /* Averaged ouptut of sensor A1 for last 10 hours */
-  /**************************************************/
-
-/*  digitalWrite(YellowLED, HIGH);
-  delay(80);
-  digitalWrite(YellowLED, LOW);
-  delay(80);
   digitalWrite(YellowLED, HIGH);
-  morse(average1);
-  // Wait two seconds
-  delay(waitTime);
-  // Turn off LED
-  digitalWrite(YellowLED, LOW);
-  delay(80); 
-  digitalWrite(YellowLED, HIGH);
-  delay(80);
-  digitalWrite(YellowLED, LOW);
 
-  /***************************************************/
-  /* Basic reading of the sensors, one after another */
-  /***************************************************/
-/*
-  // Turn on LED
-  digitalWrite(RedLED, HIGH);
-  // Read second sensor (HUMIDITY)
-  morse(map(analogRead(2), 0, 800, 0, 9));
-  // Wait two seconds
-  delay(waitTime);
-  // Turn off LED
-  digitalWrite(RedLED, LOW); 
-*/
+  LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+  LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+  LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
   LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
 }
 
@@ -255,29 +239,62 @@ void morseNumber(int number) {
 void melody(int n) {
   switch (n) {
   case 1:
-    tone(10, 523);
-    delay(400);
-    noTone(10);
-    tone(10, 659);
-    delay(500);
-    noTone(10);
-    tone(10, 784);
-    delay(600);
-    noTone(10);
+    for(int i = 0; i<15; i++) {
+      tone(10, gamel[random(15)]);
+      digitalWrite(GreenLED, HIGH);
+      delay(250);
+      digitalWrite(GreenLED, LOW);      
+      noTone(10);
+      delay(10);
+    }
+    break;
+  case 2:
+    for(int i = 0; i<5; i++) {
+      tone(10, gamel[random(15)]);
+      delay(300);    
+      noTone(10);
+      delay(10);
+    }
     break;
   }
 }
   
 void dash() {
-  tone(10, random(500)+2000);
+  tone(10, 2100);
   delay(400);
   noTone(10);
   delay(30);
 }
 
 void dot() {
-  tone(10, random(500)+3000);
+  tone(10, 3100);
   delay(100);
   noTone(10);
   delay(30);
+}
+
+void Display(int n)
+{
+  int x = int(n / 10);
+  int y = int(n % 10);
+  if (n <= 9) {
+    digitalWrite(LedD, ((n >> 3) & 1) ? HIGH : LOW);
+    digitalWrite(LedC, ((n >> 2) & 1) ? HIGH : LOW);
+    digitalWrite(LedB, ((n >> 1) & 1) ? HIGH : LOW);
+    digitalWrite(LedA, (n & 1) ? HIGH : LOW);
+  } 
+  else { 
+    digitalWrite(LedD, ((x >> 3) & 1) ? HIGH : LOW);
+    digitalWrite(LedC, ((x >> 2) & 1) ? HIGH : LOW);
+    digitalWrite(LedB, ((x >> 1) & 1) ? HIGH : LOW);
+    digitalWrite(LedA, (x & 1) ? HIGH : LOW);
+
+    delay(1000);
+
+    digitalWrite(LedD, ((y >> 3) & 1) ? HIGH : LOW);
+    digitalWrite(LedC, ((y >> 2) & 1) ? HIGH : LOW);
+    digitalWrite(LedB, ((y >> 1) & 1) ? HIGH : LOW);
+    digitalWrite(LedA, (y & 1) ? HIGH : LOW);
+
+  }
 }
